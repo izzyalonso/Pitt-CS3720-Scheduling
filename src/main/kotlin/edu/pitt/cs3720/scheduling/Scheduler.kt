@@ -85,5 +85,21 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
         )
     }
 
+    fun deviceOnline(device: Device) {
+
+    }
+
+    fun deviceOffline(device: Device) {
+
+    }
+
+    fun deviceLost(device: Device) {
+
+    }
+
+    fun deviceCompletedWork(device: Device, job: Job) {
+
+    }
+
     abstract fun nextJobFor(device: Device): Job
 }
