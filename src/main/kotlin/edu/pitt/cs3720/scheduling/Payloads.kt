@@ -23,11 +23,11 @@ class StatusUpdate(status: Status): Payload
 
 
 // Convenience for converting payloads
-fun Event.deviceOnline() = payload as? DeviceOnline
-fun Event.deviceOffline() = payload as? DeviceOffline
-fun Event.awake() = payload as? Awake
-fun Event.workRequest() = payload as? WorkRequest
-fun Event.workCompleted() = payload as? WorkCompleted
-fun Event.timeout() = payload as? Timeout
-fun Event.statusRequest() = payload as? StatusRequest
-fun Event.statusUpdate() = payload as? StatusUpdate
+fun Payload.deviceOnline() = this as? DeviceOnline
+fun Payload.deviceOffline() = this as? DeviceOffline
+fun Payload.awake() = this as? Awake
+fun Payload.workRequest() = this as? WorkRequest
+fun Payload.workCompleted() = this as? WorkCompleted
+fun Payload.timeout() = this as? Timeout
+fun Payload.statusRequest() = this as? StatusRequest
+fun Payload.statusUpdate() = this as? StatusUpdate

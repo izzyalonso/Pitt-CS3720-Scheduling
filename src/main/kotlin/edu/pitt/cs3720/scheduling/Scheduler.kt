@@ -1,8 +1,8 @@
 package edu.pitt.cs3720.scheduling
 
 import edu.pitt.cs3720.scheduling.framework.Controller
-import edu.pitt.cs3720.scheduling.framework.Event
 import edu.pitt.cs3720.scheduling.framework.EventListener
+import edu.pitt.cs3720.scheduling.framework.Payload
 
 
 abstract class Scheduler(private val jobs: MutableList<Job>, private val timeoutMillis: Int): EventListener {
@@ -10,8 +10,8 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
     private val schedule = mutableMapOf<Device, Job?>()
 
 
-    override fun onEvent(event: Event) {
-        event.deviceOnline()?.let { deviceOnline ->
+    override fun onEvent(payload: Payload) {
+        payload.deviceOnline()?.let { deviceOnline ->
             if (schedule.containsKey(deviceOnline.device)) {
                 // The device was already registered; it failed and recovered before we could notice
                 schedule.remove(deviceOnline.device)?.let { job ->
@@ -19,18 +19,18 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
                     jobs.add(job)
                 }
             }
-            scheduleWorkOn(deviceOnline.device, event.time)
+            scheduleWorkOn(deviceOnline.device)
         }
-        event.deviceOffline()?.let { deviceOffline ->
+        payload.deviceOffline()?.let { deviceOffline ->
             // Remove a device from the registry and return its job to the lake
             schedule.remove(deviceOffline.device)?.let { job ->
                 jobs.add(job)
             }
         }
-        event.workCompleted()?.let { workCompleted ->
-            scheduleWorkOn(workCompleted.device, event.time)
+        payload.workCompleted()?.let { workCompleted ->
+            scheduleWorkOn(workCompleted.device)
         }
-        event.timeout()?.let { timeout ->
+        payload.timeout()?.let { timeout ->
             /**Controller.addEvent(Event(
                 time = event.time + 50,
                 payload = StatusRequest(),
@@ -39,22 +39,21 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
         }
     }
 
-    private fun scheduleWorkOn(device: Device, currentTime: Int) {
+    private fun scheduleWorkOn(device: Device) {
         // Schedule the work
         val nextJob = nextJobFor(device)
         schedule[device] = nextJob
-        Controller.addEvent(Event(
-            time = currentTime + 50,
+        Controller.registerEvent(
             payload = WorkRequest(nextJob),
             listener = device
-        ))
+        )
 
         // And set up a timeout
-        Controller.addEvent(Event(
-            time = currentTime + timeoutMillis,
+        Controller.registerEvent(
+            millisFromNow = timeoutMillis,
             payload = Timeout(device = device, job = nextJob),
             listener = this
-        ))
+        )
     }
 
     abstract fun nextJobFor(device: Device): Job

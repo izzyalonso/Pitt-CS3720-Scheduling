@@ -1,7 +1,7 @@
 package edu.pitt.cs3720.scheduling.framework
 
 
-data class Event(val time: Int, val payload: Payload, val listener: EventListener): Comparable<Event> {
+internal data class Event(val time: Int, val payload: Payload, val listener: EventListener): Comparable<Event> {
     val id: Int
 
     init{
@@ -17,5 +17,5 @@ data class Event(val time: Int, val payload: Payload, val listener: EventListene
 interface Payload
 
 interface EventListener {
-    fun onEvent(event: Event)
+    fun onEvent(payload: Payload)
 }
