@@ -8,6 +8,7 @@ import edu.pitt.cs3720.scheduling.framework.Payload
 abstract class Scheduler(private val jobs: MutableList<Job>, private val timeoutMillis: Int): EventListener {
     // Who's working on what. Also serves as a device registry
     private val schedule = mutableMapOf<Device, Job?>()
+    private val awolDevices = mutableSetOf<Device>()
 
 
     override fun onEvent(payload: Payload) {
@@ -30,12 +31,40 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
         payload.workCompleted()?.let { workCompleted ->
             scheduleWorkOn(workCompleted.device)
         }
-        payload.timeout()?.let { timeout ->
-            /**Controller.addEvent(Event(
-                time = event.time + 50,
-                payload = StatusRequest(),
-                listener = timeout.device
-            ))*/
+        payload.workTimeout()?.let { workTimeout ->
+            awolDevices.add(workTimeout.device)
+            val statusRequest = StatusRequest(workTimeout.device)
+            Controller.registerEvent(
+                payload = statusRequest,
+                listener = workTimeout.device
+            )
+            Controller.registerEvent(
+                millisFromNow = 150,
+                payload = StatusRequestTimeout(statusRequest),
+                listener = this
+            )
+        }
+        payload.statusUpdate()?.let { statusUpdate ->
+            awolDevices.remove(statusUpdate.device)
+            if (!statusUpdate.status.working) {
+                // Something went wrong, we need to reschedule
+                schedule.remove(statusUpdate.device)?.let { job ->
+                    // If it had a job assigned, throw it back to the pool
+                    jobs.add(job)
+                }
+                scheduleWorkOn(statusUpdate.device)
+            }
+        }
+        payload.statusRequestTimeout()?.let { statusRequestTimeout ->
+            val device = statusRequestTimeout.statusRequest.device
+            if (awolDevices.contains(device)) {
+                // If we were still having the device under suspicion
+                awolDevices.remove(device)
+                schedule.remove(device)?.let { job ->
+                    // Remove the job it had assigned and throw it back to the pool
+                    jobs.add(job)
+                }
+            }
         }
     }
 
@@ -51,7 +80,7 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
         // And set up a timeout
         Controller.registerEvent(
             millisFromNow = timeoutMillis,
-            payload = Timeout(device = device, job = nextJob),
+            payload = WorkTimeout(device = device, job = nextJob),
             listener = this
         )
     }

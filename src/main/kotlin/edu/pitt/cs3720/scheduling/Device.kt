@@ -47,7 +47,7 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
         payload.statusRequest()?.let { _ ->
             if (alive) {
                 Controller.registerEvent(
-                    payload = StatusUpdate(Status(working)),
+                    payload = StatusUpdate(device = this, status = Status(working)),
                     listener = scheduler
                 )
             }
