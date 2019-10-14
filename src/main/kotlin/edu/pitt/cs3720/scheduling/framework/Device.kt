@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 
-class Device(private val scheduler: Scheduler, private val power: Int, private val failureRate: Float): EventListener {
+class Device(private val scheduler: Scheduler, private val power: Int, private val failureRate: Float, private val name: String): EventListener {
     private val id: Int
 
     private var alive = false
@@ -81,6 +81,7 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
     }
 
     override fun hashCode() = id
+    override fun toString() = name
 
 
     companion object {
