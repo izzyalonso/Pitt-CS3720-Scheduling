@@ -18,10 +18,10 @@ class SimpleSimulation: Simulation {
         )
 
         events = listOf(
-            Event(0, Awake(), devices[0]),
-            Event(TimeUnit.SECONDS.toMillis(10), Sleep(), devices[0]),
-            Event(0, Awake(), devices[1]),
-            Event(0, Awake(), devices[2])
+            Event(0, Awake(devices[0]), devices[0]),
+            Event(TimeUnit.SECONDS.toMillis(10), Sleep(devices[0]), devices[0]),
+            Event(0, Awake(devices[1]), devices[1]),
+            Event(0, Awake(devices[1]), devices[2])
         )
     }
 
