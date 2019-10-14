@@ -1,7 +1,7 @@
 package edu.pitt.cs3720.scheduling.framework.des
 
 
-data class Event(val time: Long, val payload: Payload, val listener: EventListener): Comparable<Event> {
+class Event(val time: Long, val payload: Payload, val listener: EventListener): Comparable<Event> {
     internal val id: Int
 
     init{
