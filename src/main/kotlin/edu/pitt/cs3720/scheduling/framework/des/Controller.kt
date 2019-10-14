@@ -13,21 +13,27 @@ object Controller {
     private fun reset() {
         running = false
         eventQueue = EventQueue()
+        Event.reset()
         currentTimeMillis = 0
     }
 
-    fun registerEvent(payload: Payload, listener: EventListener) {
-        registerEvent(50, payload, listener)
+    fun registerEvent(payload: Payload, listener: EventListener): Int {
+        return registerEvent(50, payload, listener)
     }
 
-    fun registerEvent(millisFromNow: Long, payload: Payload, listener: EventListener) {
-        eventQueue.enqueue(
-            Event(
-                currentTimeMillis + millisFromNow,
-                payload,
-                listener
-            )
-        )
+    fun registerEvent(millisFromNow: Long, payload: Payload, listener: EventListener): Int {
+        val event = Event(currentTimeMillis + millisFromNow, payload, listener)
+        eventQueue.enqueue(event)
+        return event.id
+    }
+
+    /**
+     * Removes an event form the queue.
+     *
+     * @param eventHandle the handle of an event as returned by Controller#registerEvent.
+     */
+    fun removeEvent(eventHandle: Int) {
+        eventQueue.remove(Event.events[eventHandle])
     }
 
     fun run(simulation: Simulation) {
