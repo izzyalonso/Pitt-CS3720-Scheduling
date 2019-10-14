@@ -4,6 +4,8 @@ package edu.pitt.cs3720.scheduling.framework.des
 /**
  * A queuable event.
  *
+ * @author Ismael Alonso
+ *
  * @param time the time at which the event will happen.
  * @param payload the payload of the event.
  * @param listener the listener of this event.
@@ -48,11 +50,15 @@ class Event(val time: Long, val payload: Payload, val listener: EventListener): 
 
 /**
  * An event's payload. Implement this interface for custom typing.
+ *
+ * @author Ismael Alonso
  */
 interface Payload
 
 /**
  * Adds the ability to listen to events.
+ *
+ * @author Ismael Alonso
  */
 interface EventListener {
     /**

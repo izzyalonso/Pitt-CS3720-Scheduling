@@ -5,6 +5,8 @@ import java.util.*
 
 /**
  * A priority queue for events. Events are sorted in ascending time order.
+ *
+ * @author Ismael Alonso
  */
 internal class EventQueue {
     private val queue = PriorityQueue<Event>()
