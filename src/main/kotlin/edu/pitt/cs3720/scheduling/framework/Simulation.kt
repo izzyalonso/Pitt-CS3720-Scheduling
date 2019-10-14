@@ -1,28 +1,40 @@
 package edu.pitt.cs3720.scheduling.framework
 
+import edu.pitt.cs3720.scheduling.framework.des.Controller
 import edu.pitt.cs3720.scheduling.framework.des.Event
 
 
-interface Simulation {
+abstract class Simulation {
     /**
      * The scheduler.
      */
-    fun scheduler(): Scheduler
+    abstract fun scheduler(): Scheduler
 
     /**
      * The list of jobs to run.
      */
-    fun jobs(): List<Job>
+    abstract fun jobs(): List<Job>
 
     /**
      * The list of devices in the IoT.
      */
-    fun devices(): List<Device>
+    abstract fun devices(): List<Device>
 
     /**
      * Events registered before the simulation starts.
      *
      * When devices are programmed to boot up or shut down.
      */
-    fun setupEvents(): List<Event>
+    abstract fun setupEvents(): List<Event>
+
+    /**
+     * Runs the simulation.
+     */
+    fun run() {
+        Controller.reset()
+        for (event in setupEvents()) {
+            Controller.registerEvent(event)
+        }
+        Controller.run()
+    }
 }

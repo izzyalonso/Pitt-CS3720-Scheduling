@@ -4,8 +4,8 @@ import edu.pitt.cs3720.scheduling.framework.*
 import edu.pitt.cs3720.scheduling.framework.des.Event
 import java.util.concurrent.TimeUnit
 
-class SimpleSimulation: Simulation {
 
+class SimpleSimulation: Simulation() {
     private val scheduler = scheduler()
     private val devices: List<Device>
     private val events: List<Event>
@@ -18,10 +18,10 @@ class SimpleSimulation: Simulation {
         )
 
         events = listOf(
-            Event(0, Awake(devices[0]), devices[0]),
-            Event(TimeUnit.SECONDS.toMillis(10), Sleep(devices[0]), devices[0]),
-            Event(0, Awake(devices[1]), devices[1]),
-            Event(0, Awake(devices[1]), devices[2])
+            awakeEvent(0, devices[0]),
+            sleepEvent(TimeUnit.SECONDS.toMillis(10), devices[0]),
+            awakeEvent(0, devices[1]),
+            awakeEvent(0, devices[2])
         )
     }
 

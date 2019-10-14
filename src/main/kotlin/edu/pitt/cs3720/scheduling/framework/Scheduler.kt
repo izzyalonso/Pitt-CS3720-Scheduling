@@ -12,6 +12,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
     private val schedule = mutableMapOf<Device, Job?>()
     private val awolDevices = mutableSetOf<Device>()
 
+    // Only one active timeout per device at a time
+    private val timeouts = mutableMapOf<Device, Int>()
+
 
     override fun onEvent(payload: Payload) {
         payload.deviceOnline()?.let { deviceOnline ->
@@ -31,6 +34,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             }
         }
         payload.workCompleted()?.let { workCompleted ->
+            Controller.removeEvent(timeouts[workCompleted.device] ?: -1)
             scheduleWorkOn(workCompleted.device)
         }
         payload.workTimeout()?.let { workTimeout ->
@@ -40,7 +44,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
                 payload = statusRequest,
                 listener = workTimeout.device
             )
-            Controller.registerEvent(
+            timeouts[workTimeout.device] = Controller.registerEvent(
                 millisFromNow = 150,
                 payload = StatusRequestTimeout(statusRequest),
                 listener = this
@@ -48,7 +52,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
         payload.statusUpdate()?.let { statusUpdate ->
             awolDevices.remove(statusUpdate.device)
-            if (!statusUpdate.status.working) {
+            if (statusUpdate.status.working) {
+                Controller.removeEvent(timeouts[statusUpdate.device] ?: -1)
+            } else {
                 // Something went wrong, we need to reschedule
                 schedule.remove(statusUpdate.device)?.let { job ->
                     // If it had a job assigned, throw it back to the pool
@@ -82,7 +88,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         )
 
         // And set up a timeout
-        Controller.registerEvent(
+        timeouts[device] = Controller.registerEvent(
             millisFromNow = timeoutMillis,
             payload = WorkTimeout(device = device, job = nextJob),
             listener = this
