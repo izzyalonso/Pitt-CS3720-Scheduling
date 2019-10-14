@@ -16,7 +16,7 @@ data class Job(val size: Int, val dependencies: List<Job> = emptyList()) {
     }
 
     override fun hashCode() = id
-    override fun toString() = "Job(id=$id, size=$size)"
+    override fun toString() = "#$id<$size>"
 
 
     companion object {
