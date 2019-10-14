@@ -1,5 +1,6 @@
 package edu.pitt.cs3720.scheduling.framework
 
+import edu.pitt.cs3720.scheduling.framework.des.Event
 import edu.pitt.cs3720.scheduling.framework.des.Payload
 
 
@@ -36,3 +37,8 @@ fun Payload.workTimeout() = this as? WorkTimeout
 fun Payload.statusRequestTimeout() = this as? StatusRequestTimeout
 fun Payload.statusRequest() = this as? StatusRequest
 fun Payload.statusUpdate() = this as? StatusUpdate
+
+
+// Convenience for creating certain Events
+fun awakeEvent(timeMillis: Long, device: Device) = Event(timeMillis, Awake(device), device)
+fun sleepEvent(timeMillis: Long, device: Device) = Event(timeMillis, Sleep(device), device)

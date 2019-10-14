@@ -9,7 +9,7 @@ data class Event(val time: Long, val payload: Payload, val listener: EventListen
         events.add(this)
     }
 
-    override fun equals(other: Any?) = if (other is Event) id == other else false
+    override fun equals(other: Any?) = if (other is Event) id == other.id else false
     override fun hashCode() = id
     override fun compareTo(other: Event): Int = time.compareTo(other.time)
     override fun toString() = "Event(time=$time, payload=$payload)"

@@ -25,8 +25,6 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
                 // We are not going to do the work
                 working = false
                 if (roll < failureRate/10) {
-                    // Let's say 1/10 the times the thing fails because the device is dead
-                    alive = false
                     // In which case we'd need to wake up at some point in the future
                     Controller.registerEvent(
                         // Oh, IDK, 2 to 3 minutes...
@@ -34,15 +32,18 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
                         payload = DeviceOnline(device = this),
                         listener = scheduler
                     )
+                    // Let's say 1/10 the times the thing fails because the device is dead
+                    alive = false
                 }
             } else {
                 // Schedule the response to the request
-                working = true
                 Controller.registerEvent(
-                    millisFromNow = TimeUnit.SECONDS.toMillis((workRequest.job.size.toFloat() / power).toLong()),
+                    // I cannot use TimeUnit.SECONDS here because it doesn't have a toMillis(double). SMH
+                    millisFromNow = workRequest.job.size * 1000L / power,
                     payload = WorkCompleted(device = this, job = workRequest.job),
                     listener = scheduler
                 )
+                working = true
             }
         }
         payload.statusRequest()?.let { _ ->

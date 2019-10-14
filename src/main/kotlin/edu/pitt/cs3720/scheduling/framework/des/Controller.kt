@@ -1,7 +1,5 @@
 package edu.pitt.cs3720.scheduling.framework.des
 
-import edu.pitt.cs3720.scheduling.framework.Simulation
-
 
 object Controller {
     private var running = false
@@ -10,12 +8,14 @@ object Controller {
     private var currentTimeMillis = 0L
 
 
-    private fun reset() {
+    fun reset() {
         running = false
         eventQueue = EventQueue()
         Event.reset()
         currentTimeMillis = 0
     }
+
+    fun registerEvent(event: Event) = eventQueue.enqueue(event)
 
     fun registerEvent(payload: Payload, listener: EventListener): Int {
         return registerEvent(50, payload, listener)
@@ -33,16 +33,13 @@ object Controller {
      * @param eventHandle the handle of an event as returned by Controller#registerEvent.
      */
     fun removeEvent(eventHandle: Int) {
+        if (eventHandle < 0 || eventHandle >= Event.events.size) return
         eventQueue.remove(Event.events[eventHandle])
     }
 
-    fun run(simulation: Simulation) {
+    fun run() {
         if (running) return
 
-        reset()
-        for (event in simulation.setupEvents()) {
-            eventQueue.enqueue(event)
-        }
         running = true
         while (!eventQueue.isEmpty()) {
             val event = eventQueue.dequeue()
