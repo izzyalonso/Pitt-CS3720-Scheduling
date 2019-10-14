@@ -16,9 +16,7 @@ data class Event(val time: Long, val payload: Payload, val listener: EventListen
     }
 }
 
-abstract class Payload {
-    override fun toString() = this::class.simpleName ?: "Payload"
-}
+interface Payload
 
 interface EventListener {
     fun onEvent(payload: Payload)

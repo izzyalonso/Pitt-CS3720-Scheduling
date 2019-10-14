@@ -12,16 +12,16 @@ class SimpleSimulation: Simulation {
 
     init {
         devices = listOf(
-            Device(scheduler, 1000, 0f),
-            Device(scheduler, 500, 0f),
-            Device(scheduler, 2000, 0f)
+            Device(scheduler, 1000, 0f, "Phone 1"),
+            Device(scheduler, 500, 0f, "Phone 2"),
+            Device(scheduler, 2000, 0f, "Phone 3")
         )
 
         events = listOf(
-            Event(0, Awake(), devices[0]),
-            Event(TimeUnit.SECONDS.toMillis(10), Sleep(), devices[0]),
-            Event(0, Awake(), devices[1]),
-            Event(0, Awake(), devices[2])
+            Event(0, Awake(devices[0]), devices[0]),
+            Event(TimeUnit.SECONDS.toMillis(10), Sleep(devices[0]), devices[0]),
+            Event(0, Awake(devices[1]), devices[1]),
+            Event(0, Awake(devices[1]), devices[2])
         )
     }
 

@@ -77,7 +77,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         val nextJob = nextJobFor(device)
         schedule[device] = nextJob
         Controller.registerEvent(
-            payload = WorkRequest(nextJob),
+            payload = WorkRequest(device, nextJob),
             listener = device
         )
 

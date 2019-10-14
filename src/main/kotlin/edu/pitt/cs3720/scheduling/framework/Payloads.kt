@@ -3,26 +3,26 @@ package edu.pitt.cs3720.scheduling.framework
 import edu.pitt.cs3720.scheduling.framework.des.Payload
 
 
-// To notify the scheduler a device came online
-class DeviceOnline(val device: Device): Payload()
-// To notify the scheduler a device went offline
-class DeviceOffline(val device: Device): Payload()
-// A sleep event; device specific
-class Sleep: Payload()
-// A reboot event; device specific
-class Awake: Payload()
-// A work request from the scheduler to a device
-class WorkRequest(val job: Job): Payload()
+// To notify the scheduler a device came online.
+data class DeviceOnline(val device: Device): Payload
+// To notify the scheduler a device went offline.
+data class DeviceOffline(val device: Device): Payload
+// A boot event. Signals a device woke up. Includes the device for logging purposes.
+data class Awake(val device: Device): Payload
+// A shutdown event. Signals a device went to sleep. Includes the device for logging purposes.
+data class Sleep(val device: Device): Payload
+// A work request from the scheduler to a device. Includes the device for logging.
+data class WorkRequest(val device: Device, val job: Job): Payload
 // A work completed notification from a device to the scheduler
-class WorkCompleted(val device: Device, val job: Job): Payload()
+data class WorkCompleted(val device: Device, val job: Job): Payload
 // For the scheduler to periodically check on scheduled jobs
-class WorkTimeout(val device: Device, val job: Job): Payload()
+data class WorkTimeout(val device: Device, val job: Job): Payload
 // For a scheduler to determine a device shat the bed
-class StatusRequestTimeout(val statusRequest: StatusRequest): Payload()
+data class StatusRequestTimeout(val statusRequest: StatusRequest): Payload
 // From the scheduler to know what the status of a device is
-class StatusRequest(val device: Device): Payload()
+data class StatusRequest(val device: Device): Payload
 // A response to a status request
-class StatusUpdate(val device: Device, val status: Status): Payload()
+data class StatusUpdate(val device: Device, val status: Status): Payload
 
 
 // Convenience for converting payloads
