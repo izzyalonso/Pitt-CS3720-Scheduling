@@ -1,5 +1,6 @@
-package edu.pitt.cs3720.scheduling.framework
+package edu.pitt.cs3720.scheduling.framework.des
 
+import edu.pitt.cs3720.scheduling.framework.des.Event
 import java.util.*
 
 

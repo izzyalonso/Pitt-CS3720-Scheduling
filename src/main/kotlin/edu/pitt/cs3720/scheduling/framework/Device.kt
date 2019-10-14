@@ -1,15 +1,16 @@
-package edu.pitt.cs3720.scheduling
+package edu.pitt.cs3720.scheduling.framework
 
-import edu.pitt.cs3720.scheduling.framework.Controller
-import edu.pitt.cs3720.scheduling.framework.EventListener
-import edu.pitt.cs3720.scheduling.framework.Payload
+import edu.pitt.cs3720.scheduling.framework.des.Controller
+import edu.pitt.cs3720.scheduling.framework.des.EventListener
+import edu.pitt.cs3720.scheduling.framework.des.Payload
+import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 
 class Device(private val scheduler: Scheduler, private val power: Int, private val failureRate: Float): EventListener {
     private val id: Int
 
-    private var alive = true
+    private var alive = false
     private var working = false
 
     init {
@@ -29,7 +30,7 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
                     // In which case we'd need to wake up at some point in the future
                     Controller.registerEvent(
                         // Oh, IDK, 2 to 3 minutes...
-                        millisFromNow = (120 + Random.nextInt(60))*1000,
+                        millisFromNow = TimeUnit.SECONDS.toMillis(120 + Random.nextLong(60)),
                         payload = DeviceOnline(device = this),
                         listener = scheduler
                     )
@@ -38,7 +39,7 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
                 // Schedule the response to the request
                 working = true
                 Controller.registerEvent(
-                    millisFromNow = ((workRequest.job.size.toFloat() / power)*1000).toInt(),
+                    millisFromNow = TimeUnit.SECONDS.toMillis((workRequest.job.size.toFloat() / power).toLong()),
                     payload = WorkCompleted(device = this, job = workRequest.job),
                     listener = scheduler
                 )
@@ -47,10 +48,21 @@ class Device(private val scheduler: Scheduler, private val power: Int, private v
         payload.statusRequest()?.let { _ ->
             if (alive) {
                 Controller.registerEvent(
-                    payload = StatusUpdate(device = this, status = Status(working)),
+                    payload = StatusUpdate(
+                        device = this,
+                        status = Status(working)
+                    ),
                     listener = scheduler
                 )
             }
+        }
+        payload.sleep()?.let { _ ->
+            alive = false
+            working = false
+            Controller.registerEvent(
+                payload = DeviceOffline(this),
+                listener = scheduler
+            )
         }
         payload.awake()?.let { _ ->
             alive = true

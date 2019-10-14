@@ -1,11 +1,13 @@
-package edu.pitt.cs3720.scheduling
+package edu.pitt.cs3720.scheduling.framework
 
-import edu.pitt.cs3720.scheduling.framework.Controller
-import edu.pitt.cs3720.scheduling.framework.EventListener
-import edu.pitt.cs3720.scheduling.framework.Payload
+import edu.pitt.cs3720.scheduling.framework.des.Controller
+import edu.pitt.cs3720.scheduling.framework.des.EventListener
+import edu.pitt.cs3720.scheduling.framework.des.Payload
 
 
-abstract class Scheduler(private val jobs: MutableList<Job>, private val timeoutMillis: Int): EventListener {
+abstract class Scheduler(private val timeoutMillis: Long): EventListener {
+    internal val jobs = mutableListOf<Job>()
+
     // Who's working on what. Also serves as a device registry
     private val schedule = mutableMapOf<Device, Job?>()
     private val awolDevices = mutableSetOf<Device>()
@@ -69,6 +71,8 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
     }
 
     private fun scheduleWorkOn(device: Device) {
+        if (jobs.isEmpty()) return
+
         // Schedule the work
         val nextJob = nextJobFor(device)
         schedule[device] = nextJob
@@ -101,5 +105,6 @@ abstract class Scheduler(private val jobs: MutableList<Job>, private val timeout
 
     }
 
+    abstract fun addJobToPool(job: Job)
     abstract fun nextJobFor(device: Device): Job
 }
