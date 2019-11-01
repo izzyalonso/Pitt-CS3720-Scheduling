@@ -18,7 +18,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
 
 
     /**
-     * Adds a job to the queue.
+     * Adds a job to the queue and schedules work to a device that's idle if there's any
      *
      * @param job the job to add.
      */
@@ -95,6 +95,11 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
     }
 
+    /**
+     * Schedules work on a device.
+     *
+     * @return true if there was work to schedule, false otherwise.
+     */
     private fun scheduleWorkOn(device: Device): Boolean {
         if (jobs.isEmpty()) return false
 
