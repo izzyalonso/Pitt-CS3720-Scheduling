@@ -59,8 +59,6 @@ object Controller {
         eventQueue.remove(Event.events[eventHandle])
     }
 
-    var jc = 0
-
     /**
      * Executes the simulation.
      */
@@ -73,7 +71,6 @@ object Controller {
             println("$event")
             currentTimeMillis = event.time
             event.listener.onEvent(event.payload)
-            // if (++jc > 20) break
         }
         running = false
     }

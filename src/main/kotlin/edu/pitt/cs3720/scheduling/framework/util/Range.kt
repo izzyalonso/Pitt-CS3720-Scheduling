@@ -13,7 +13,7 @@ class Range(private val from: Int, private val to: Int) {
             throw IllegalArgumentException("From needs to be smaller than to in a range")
         }
     }
-    
+
 
     /**
      * Gets a random number in the range.
