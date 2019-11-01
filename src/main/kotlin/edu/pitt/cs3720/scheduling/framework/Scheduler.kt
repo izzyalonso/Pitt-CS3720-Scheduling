@@ -11,10 +11,23 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
     // Who's working on what. Also serves as a device registry
     private val schedule = mutableMapOf<Device, Job?>()
     private val awolDevices = mutableSetOf<Device>()
+    private val idleDevices = mutableListOf<Device>()
 
     // Only one active timeout per device at a time
     private val timeouts = mutableMapOf<Device, Int>()
 
+
+    /**
+     * Adds a job to the queue.
+     *
+     * @param job the job to add.
+     */
+    fun addJob(job: Job) {
+        jobs.add(job)
+        if (idleDevices.isNotEmpty()) {
+            scheduleWorkOn(idleDevices.removeAt(0))
+        }
+    }
 
     override fun onEvent(payload: Payload) {
         payload.deviceOnline()?.let { deviceOnline ->
@@ -25,7 +38,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
                     jobs.add(job)
                 }
             }
-            scheduleWorkOn(deviceOnline.device)
+            if (!scheduleWorkOn(deviceOnline.device)) {
+                idleDevices.add(deviceOnline.device)
+            }
         }
         payload.deviceOffline()?.let { deviceOffline ->
             // Remove a device from the registry and return its job to the lake
@@ -35,7 +50,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
         payload.workCompleted()?.let { workCompleted ->
             Controller.removeEvent(timeouts[workCompleted.device] ?: -1)
-            scheduleWorkOn(workCompleted.device)
+            if (!scheduleWorkOn(workCompleted.device)) {
+                idleDevices.add(workCompleted.device)
+            }
         }
         payload.workTimeout()?.let { workTimeout ->
             awolDevices.add(workTimeout.device)
@@ -60,7 +77,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
                     // If it had a job assigned, throw it back to the pool
                     jobs.add(job)
                 }
-                scheduleWorkOn(statusUpdate.device)
+                if (!scheduleWorkOn(statusUpdate.device)) {
+                    idleDevices.add(statusUpdate.device)
+                }
             }
         }
         payload.statusRequestTimeout()?.let { statusRequestTimeout ->
@@ -76,8 +95,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
     }
 
-    private fun scheduleWorkOn(device: Device) {
-        if (jobs.isEmpty()) return
+    private fun scheduleWorkOn(device: Device): Boolean {
+        if (jobs.isEmpty()) return false
 
         // Schedule the work
         val nextJob = nextJobFor(device)
@@ -93,6 +112,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             payload = WorkTimeout(device = device, job = nextJob),
             listener = this
         )
+
+        return true
     }
 
     fun deviceOnline(device: Device) {

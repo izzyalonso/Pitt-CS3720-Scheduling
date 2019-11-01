@@ -24,6 +24,8 @@ data class StatusRequestTimeout(val statusRequest: StatusRequest): Payload
 data class StatusRequest(val device: Device): Payload
 // A response to a status request
 data class StatusUpdate(val device: Device, val status: Status): Payload
+// For the job generator to keep on cranking away
+class GenerateJob: Payload { override fun toString() = "GenerateJob" }
 
 
 // Convenience for converting payloads
@@ -37,6 +39,7 @@ fun Payload.workTimeout() = this as? WorkTimeout
 fun Payload.statusRequestTimeout() = this as? StatusRequestTimeout
 fun Payload.statusRequest() = this as? StatusRequest
 fun Payload.statusUpdate() = this as? StatusUpdate
+fun Payload.generateJob() = this as? GenerateJob
 
 
 // Convenience for creating certain Events

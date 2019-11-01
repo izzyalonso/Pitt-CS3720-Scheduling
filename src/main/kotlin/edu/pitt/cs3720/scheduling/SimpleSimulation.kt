@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 
 
 class SimpleSimulation: Simulation() {
-    private val scheduler = scheduler()
+    private val scheduler = SimpleScheduler()
     private val devices: List<Device>
     private val events: List<Event>
 
@@ -18,29 +18,14 @@ class SimpleSimulation: Simulation() {
         )
 
         events = listOf(
-            awakeEvent(0, devices[0]),
+            awakeEvent(50, devices[0]),
             sleepEvent(TimeUnit.SECONDS.toMillis(10), devices[0]),
-            awakeEvent(0, devices[1]),
-            awakeEvent(0, devices[2])
+            awakeEvent(100, devices[1]),
+            awakeEvent(150, devices[2])
         )
     }
 
-    override fun scheduler(): Scheduler{
-        val scheduler = SimpleScheduler()
-        scheduler.jobs.addAll(jobs())
-        return scheduler
-    }
-
-    override fun jobs() = listOf(
-        Job(800),
-        Job(5000),
-        Job(8000),
-        Job(2000),
-        Job(6000),
-        Job(15000),
-        Job(8000),
-        Job(9000)
-    )
+    override fun scheduler() = scheduler
 
     override fun devices() = devices
 
