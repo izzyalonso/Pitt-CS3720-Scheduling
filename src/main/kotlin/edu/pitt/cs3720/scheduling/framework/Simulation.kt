@@ -26,7 +26,12 @@ abstract class Simulation {
     /**
      * @return the default job generator, parameters may change in the future.
      */
-    fun jobGenerator() = JobGenerator.Random(scheduler(), Range(500, 5000), Range(1000, 4000))
+    fun jobGenerator() = JobGenerator.Random(
+        scheduler = scheduler(),
+        sizes = Range(500, 5000),
+        deadlines = Range(5000, 6000),
+        frequencies = Range(100, 1000)
+    )
 
     /**
      * Runs the simulation.

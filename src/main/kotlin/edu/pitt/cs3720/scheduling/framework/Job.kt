@@ -5,9 +5,14 @@ package edu.pitt.cs3720.scheduling.framework
  * A job that can be scheduled.
  *
  * @param size a representation of the size of the job.
+ * @param deadline the job's deadline.
  * @param dependencies jobs that need to be run before this one.
  */
-data class Job(val size: Int, val dependencies: List<Job> = emptyList()) {
+data class Job(
+    val size: Int,
+    val deadline: Long,
+    val dependencies: List<Job> = emptyList()
+) {
     val id: Int
 
     init {

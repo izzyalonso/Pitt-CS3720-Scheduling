@@ -43,6 +43,7 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
     class Random(
         scheduler: Scheduler,
         private val sizes: Range,
+        private val deadlines: Range,
         private val frequencies: Range,
         private val jobCap: Int = 20
     ): JobGenerator(scheduler) {
@@ -57,7 +58,7 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
 
         override fun onEvent(payload: Payload) {
             payload.generateJob()?.let { _ ->
-                scheduler.addJob(Job(sizes.random()))
+                scheduler.addJob(Job(sizes.random(), Controller.currentTimeMillis()+deadlines.random()))
                 if (++generatedJobs < jobCap) {
                     Controller.registerEvent(frequencies.random().toLong(), GenerateJob(), this)
                 }
