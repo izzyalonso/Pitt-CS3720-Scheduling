@@ -6,12 +6,13 @@ import edu.pitt.cs3720.scheduling.framework.des.Payload
 
 
 abstract class Scheduler(private val timeoutMillis: Long): EventListener {
-    internal val jobs = mutableListOf<Job>()
+    // It's not the best thing to keep these protected and mutable, but that's okay for now
+    protected val jobs = mutableListOf<Job>()
+    protected val idleDevices = mutableListOf<Device>()
 
     // Who's working on what. Also serves as a device registry
     private val schedule = mutableMapOf<Device, Job?>()
     private val awolDevices = mutableSetOf<Device>()
-    private val idleDevices = mutableListOf<Device>()
 
     // Only one active timeout per device at a time
     private val timeouts = mutableMapOf<Device, Int>()
@@ -25,7 +26,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
     fun addJob(job: Job) {
         jobs.add(job)
         if (idleDevices.isNotEmpty()) {
-            scheduleWorkOn(idleDevices.removeAt(0))
+            scheduleWork()
         }
     }
 
@@ -38,8 +39,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
                     jobs.add(job)
                 }
             }
-            if (!scheduleWorkOn(deviceOnline.device)) {
-                idleDevices.add(deviceOnline.device)
+            idleDevices.add(deviceOnline.device)
+            if (jobs.isNotEmpty()) {
+                scheduleWork()
             }
         }
         payload.deviceOffline()?.let { deviceOffline ->
@@ -50,8 +52,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
         payload.workCompleted()?.let { workCompleted ->
             Controller.removeEvent(timeouts[workCompleted.device] ?: -1)
-            if (!scheduleWorkOn(workCompleted.device)) {
-                idleDevices.add(workCompleted.device)
+            idleDevices.add(workCompleted.device)
+            if (jobs.isNotEmpty()) {
+                scheduleWork()
             }
         }
         payload.workTimeout()?.let { workTimeout ->
@@ -77,9 +80,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
                     // If it had a job assigned, throw it back to the pool
                     jobs.add(job)
                 }
-                if (!scheduleWorkOn(statusUpdate.device)) {
-                    idleDevices.add(statusUpdate.device)
-                }
+                idleDevices.add(statusUpdate.device)
+                scheduleWork()
             }
         }
         payload.statusRequestTimeout()?.let { statusRequestTimeout ->
@@ -100,25 +102,25 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
      *
      * @return true if there was work to schedule, false otherwise.
      */
-    private fun scheduleWorkOn(device: Device): Boolean {
-        if (jobs.isEmpty()) return false
+    protected fun schedule(job: Job, device: Device) {
+        if (!jobs.contains(job)) throw IllegalStateException("Job not found in job pool")
+        if (!idleDevices.contains(device)) throw IllegalStateException("Device not found in idle pool")
 
-        // Schedule the work
-        val nextJob = nextJobFor(device)
-        schedule[device] = nextJob
+        jobs.remove(job)
+        idleDevices.remove(device)
+
+        schedule[device] = job
         Controller.registerEvent(
-            payload = WorkRequest(device, nextJob),
+            payload = WorkRequest(device, job),
             listener = device
         )
 
         // And set up a timeout
         timeouts[device] = Controller.registerEvent(
             millisFromNow = timeoutMillis,
-            payload = WorkTimeout(device = device, job = nextJob),
+            payload = WorkTimeout(device = device, job = job),
             listener = this
         )
-
-        return true
     }
 
     /*
@@ -141,10 +143,9 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
 
     }
 
-    /*
-     * The following events need to be implemented by the scheduler to run smoothly
+    /**
+     * Gets called when anything significant changes so that the particular implementation of the scheduler we're
+     * using can choose what jobs run in what devices.
      */
-
-    abstract fun addJobToPool(job: Job)
-    abstract fun nextJobFor(device: Device): Job
+    abstract fun scheduleWork()
 }
