@@ -5,6 +5,22 @@ import edu.pitt.cs3720.scheduling.framework.des.Event
 import java.util.concurrent.TimeUnit
 
 
+/*
+ * SIMPLE.
+ *
+ * Contains a simple scheduler and a simple simulation.
+ *
+ * Primary for testing purposes and to establish some sort of performance baseline.
+ *
+ * The simple scheduler is a FIFO matching scheduler. Schedules the first available job on the first available device.
+ */
+
+class SimpleScheduler: Scheduler(TimeUnit.SECONDS.toMillis(5)) {
+    override fun scheduleWork() {
+        schedule(jobs.first(), idleDevices.first())
+    }
+}
+
 class SimpleSimulation: Simulation() {
     private val scheduler = SimpleScheduler()
     private val devices: List<Device>
