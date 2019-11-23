@@ -4,12 +4,12 @@ package edu.pitt.cs3720.scheduling.framework.des
 /**
  * A queuable event.
  *
- * @author Ismael Alonso
- *
  * @param time the time at which the event will happen.
  * @param payload the payload of the event.
  * @param listener the listener of this event.
  * @see Payload
+ *
+ * @author Ismael Alonso
  */
 class Event(val time: Long, val payload: Payload, val listener: EventListener): Comparable<Event> {
     internal val id: Int

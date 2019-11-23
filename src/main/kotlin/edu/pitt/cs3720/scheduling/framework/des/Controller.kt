@@ -24,6 +24,11 @@ object Controller {
     }
 
     /**
+     * @return the current simulation time.
+     */
+    fun currentTimeMillis() = currentTimeMillis
+
+    /**
      * Registers a full event. Typically for set up. Skips registration if the event happened in the past.
      *
      * @param event the event to register.

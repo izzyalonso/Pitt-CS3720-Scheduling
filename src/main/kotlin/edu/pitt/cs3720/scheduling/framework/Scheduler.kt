@@ -121,6 +121,10 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         return true
     }
 
+    /*
+     * The following events can be implemented to gather intel about the state of the system.
+     */
+
     fun deviceOnline(device: Device) {
 
     }
@@ -136,6 +140,10 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
     fun deviceCompletedWork(device: Device, job: Job) {
 
     }
+
+    /*
+     * The following events need to be implemented by the scheduler to run smoothly
+     */
 
     abstract fun addJobToPool(job: Job)
     abstract fun nextJobFor(device: Device): Job

@@ -12,9 +12,9 @@ class SimpleSimulation: Simulation() {
 
     init {
         devices = listOf(
-            Device(scheduler, 1000, 0f, "Phone 1"),
-            Device(scheduler, 500, 0f, "Phone 2"),
-            Device(scheduler, 2000, 0f, "Phone 3")
+            Device(scheduler, 1000, 1f, 0f, "Phone 1"),
+            Device(scheduler, 500, 1f, 0f, "Phone 2"),
+            Device(scheduler, 2000, 1f, 0f, "Phone 3")
         )
 
         events = listOf(
