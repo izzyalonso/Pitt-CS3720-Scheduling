@@ -24,9 +24,9 @@ abstract class Simulation {
     abstract fun setupEvents(): List<Event>
 
     /**
-     * @return the default job generator, parameters may change in the future
+     * @return the default job generator, parameters may change in the future.
      */
-    fun jobGenerator() = JobGenerator(scheduler(), Range(500, 5000), Range(1000, 4000))
+    fun jobGenerator() = JobGenerator.Random(scheduler(), Range(500, 5000), Range(1000, 4000))
 
     /**
      * Runs the simulation.
