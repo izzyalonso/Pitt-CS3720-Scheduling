@@ -8,9 +8,13 @@ import java.lang.IllegalArgumentException
 
 
 /**
- * Adds a finite amount of jobs to the scheduler with a size range at a frequency range. This is done online
- * to keep things real.
- */
+ * Releases jobs to a scheduler in an online fashion. Like every other component, it is controlled by the Controller,
+ * but releases jobs to the scheduler directly for simplicity.
+ *
+ * @param scheduler the scheduler to release jobs to.
+ *
+ * @author Ismael Alonso
+*/
 abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
 
     private var started = false
@@ -29,10 +33,12 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
     /**
      * Adds a number of jobs with random sizes and frequencies in pre-established ranges.
      *
-     * @param scheduler a reference to the scheduler to generate events.
+     * @param scheduler the scheduler to release jobs to.
      * @param sizes the job size range to draw from.
      * @param frequencies the job frequency range to draw from.
      * @param jobCap the number of jobs to generate.
+     *
+     * @author Ismael Alonso
      */
     class Random(
         scheduler: Scheduler,
@@ -62,8 +68,10 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
     /**
      * This generator knows the set of jobs it needs to generate beforehand.
      *
-     * @param scheduler the scheduler to release jobs to
-     * @param jobs the list of jobs to release with a release time
+     * @param scheduler the scheduler to release jobs to.
+     * @param jobs the list of jobs to release with a release time.
+     *
+     * @author Ismael Alonso
      */
     class Fixed(scheduler: Scheduler, jobs: List<Pair<Job, Long>>): JobGenerator(scheduler) {
         private val jobs: MutableList<Pair<Job, Long>>
