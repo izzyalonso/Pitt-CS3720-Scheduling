@@ -10,3 +10,10 @@ fun <T> MutableList<T>.removeAndGet(element: T): T? {
         else -> removeAt(index)
     }
 }
+
+fun <T> MutableList<T>.addBuilder(element: T): MutableList<T> {
+    add(element)
+    return this
+}
+
+fun <T> List<T>.duplicate(): List<T> = fold(mutableListOf()) { acc: MutableList<T>, next: T -> acc.addBuilder(next) }

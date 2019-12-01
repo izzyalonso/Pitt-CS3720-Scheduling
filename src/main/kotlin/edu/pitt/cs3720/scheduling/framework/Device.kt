@@ -25,9 +25,9 @@ import kotlin.random.Random
  * @author Ismael Alonso
  */
 class Device(private val scheduler: Scheduler,
-             public val capability: Int,
-             public val efficiency: Float,
-             public val failureRate: Float,
+             val capability: Int,
+             val efficiency: Float,
+             private val failureRate: Float,
              private val name: String): EventListener {
 
     private val id: Int
@@ -103,7 +103,7 @@ class Device(private val scheduler: Scheduler,
     /**
      * @return whether the device is working.
      */
-    private fun isWorking() = workScheduledUntil < Controller.currentTimeMillis()
+    private fun isWorking() = workScheduledUntil > Controller.currentTimeMillis()
 
     override fun equals(other: Any?) = other is Device && id == other.id
     override fun hashCode() = id
