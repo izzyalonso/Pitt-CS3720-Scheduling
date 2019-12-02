@@ -29,14 +29,15 @@ abstract class Simulation {
     fun jobGenerator() = JobGenerator.Random(
         scheduler = scheduler(),
         sizes = Range(500, 8000),
-        deadlines = Range(5000, 8000),
-        frequencies = Range(500, 2000)
+        deadlines = Range(6000, 9000),
+        frequencies = Range(1500, 3000)
     )
 
     /**
      * Runs the simulation.
      */
     fun run() {
+        Analytics.reset()
         Controller.reset()
         jobGenerator().start()
         for (event in setupEvents()) {
@@ -44,7 +45,7 @@ abstract class Simulation {
         }
         Controller.run(object: Controller.Listener {
             override fun onSimulationComplete() {
-                println("SIMULATION COMPLETE")
+                println("\nSIMULATION COMPLETE")
                 println("-------------------")
                 println("Jobs submitted: ${Analytics.totalJobs}" )
                 println("Jobs completed: ${Analytics.jobsCompleted}")

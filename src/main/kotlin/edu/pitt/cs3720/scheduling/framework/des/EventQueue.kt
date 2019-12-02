@@ -11,10 +11,9 @@ import java.util.*
 internal class EventQueue {
     private val queue = PriorityQueue<Event>()
 
+
     /**
-     * Enqueues an event.
-     *
-     * @param event the event to enqueue.
+     * Enqueues an [event].
      */
     internal fun enqueue(event: Event) = queue.add(event)
 
@@ -29,7 +28,7 @@ internal class EventQueue {
     internal fun dequeue(): Event = queue.remove()
 
     /**
-     * Removes an event from the queue altogether. Take the following scenario:
+     * Removes an [event] from the queue altogether. Take the following scenario:
      *
      * Suppose we schedule a timeout type event but we get a legit response before we actually hit
      * the timeout. It is then in our interest to remove the event from the queue to get a cleaner

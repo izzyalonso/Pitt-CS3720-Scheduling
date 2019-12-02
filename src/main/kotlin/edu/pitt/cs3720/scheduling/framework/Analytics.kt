@@ -18,6 +18,14 @@ object Analytics {
         private set
 
 
+    fun reset() {
+        totalJobs = 0
+        jobsCompleted = 0
+        jobSizeCompleted = 0
+        missedDeadlines = 0
+        missedSize = 0
+    }
+
     fun jobCompleted(job: Job, device: Device) {
         totalJobs++
         jobsCompleted++

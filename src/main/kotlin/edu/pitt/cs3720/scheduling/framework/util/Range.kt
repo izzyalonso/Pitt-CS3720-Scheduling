@@ -6,6 +6,8 @@ import kotlin.random.Random
 
 /**
  * Range of two integers with some added utility.
+ *
+ * @author Ismael Alonso
  */
 class Range(private val from: Int, private val to: Int) {
     init {
@@ -16,7 +18,7 @@ class Range(private val from: Int, private val to: Int) {
 
 
     /**
-     * Gets a random number in the range.
+     * @return a random number in the range.
      */
     fun random() = from + Random.nextInt(to - from)
 }
