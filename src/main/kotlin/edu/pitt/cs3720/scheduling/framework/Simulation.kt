@@ -42,6 +42,16 @@ abstract class Simulation {
         for (event in setupEvents()) {
             Controller.registerEvent(event)
         }
-        Controller.run()
+        Controller.run(object: Controller.Listener {
+            override fun onSimulationComplete() {
+                println("SIMULATION COMPLETE")
+                println("-------------------")
+                println("Jobs submitted: ${Analytics.totalJobs}" )
+                println("Jobs completed: ${Analytics.jobsCompleted}")
+                println("Job size completed: ${Analytics.jobSizeCompleted}")
+                println("Deadlines missed: ${Analytics.missedDeadlines}")
+                println("Size lost due to deadline misses: ${Analytics.missedSize}")
+            }
+        })
     }
 }

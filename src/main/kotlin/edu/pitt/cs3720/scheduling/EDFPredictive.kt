@@ -28,8 +28,9 @@ class EDFPredictiveScheduler: Scheduler() {
         }
     }
 
-    override fun deviceOffline(device: Device) {
+    override fun deviceOffline(device: Device, job: Job?) {
         availableDevices.remove(device)
+        if (job != null) failureRates[device]?.incrementFailed()
     }
 
     override fun deviceLost(device: Device, job: Job?) {
@@ -90,9 +91,7 @@ class EDFPredictiveScheduler: Scheduler() {
                     // This is because we're reserving that device for this job
                     // Can't come up with a better name for these
                     for (job2 in jobsDupe) {
-                        jobDeviceMap[job2]?.let { devices2 ->
-                            devices2.remove(preferredDevice)
-                        }
+                        jobDeviceMap[job2]?.remove(preferredDevice)
                     }
                 }
             }

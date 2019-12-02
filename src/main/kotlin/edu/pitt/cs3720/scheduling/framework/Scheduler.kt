@@ -62,7 +62,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             }
         }
         payload.deviceOffline()?.let { deviceOffline ->
-            deviceOffline(deviceOffline.device)
+            deviceOffline(deviceOffline.device, schedule[deviceOffline.device])
             // Remove a device from the registry and return its job to the lake
             schedule.remove(deviceOffline.device)?.let { job ->
                 jobs.add(job)
@@ -70,6 +70,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
         payload.workCompleted()?.let { workCompleted ->
             Controller.removeEvent(timeouts[workCompleted.device] ?: -1)
+            Analytics.jobCompleted(workCompleted.job, workCompleted.device)
             idleDevices.add(workCompleted.device)
             if (jobs.isNotEmpty()) {
                 internalScheduleWork()
@@ -126,7 +127,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             if (job.deadline < Controller.currentTimeMillis()) {
                 println("Job$job missed deadline")
                 jobs.remove(job)
-                Analytics.missedDeadlines.add(job)
+                Analytics.jobMissedDeadline(job)
             } else {
                 // Ordered so we can break; all jobs after this one have not missed their deadline
                 break
@@ -170,7 +171,7 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
      */
 
     open fun deviceOnline(device: Device) { }
-    open fun deviceOffline(device: Device) { }
+    open fun deviceOffline(device: Device, job: Job?) { }
     open fun deviceLost(device: Device, job: Job?) { }
     open fun jobAdded(job: Job) { }
     open fun deviceCompletedWork(device: Device, job: Job) { }

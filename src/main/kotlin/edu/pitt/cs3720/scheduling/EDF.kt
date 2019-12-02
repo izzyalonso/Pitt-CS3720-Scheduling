@@ -17,7 +17,7 @@ class EDFScheduler: Scheduler() {
         availableDevices.add(device)
     }
 
-    override fun deviceOffline(device: Device) {
+    override fun deviceOffline(device: Device, job: Job?) {
         availableDevices.remove(device)
     }
 

@@ -29,21 +29,16 @@ object Controller {
     fun currentTimeMillis() = currentTimeMillis
 
     /**
-     * Registers a full event. Typically for set up. Skips registration if the event happened in the past.
-     *
-     * @param event the event to register.
+     * Registers a full [event]. Typically for set up. Skips registration if the event happened in the past.
      */
-    fun registerEvent(event: Event){
-        if (event.time < currentTimeMillis) return
-        eventQueue.enqueue(event)
+    fun registerEvent(event: Event) {
+        if (event.time >= currentTimeMillis) eventQueue.enqueue(event)
     }
 
     /**
      * Registers an event with a fixed delay. TODO make it configurable.
      */
-    fun registerEvent(payload: Payload, listener: EventListener): Int {
-        return registerEvent(50, payload, listener)
-    }
+    fun registerEvent(payload: Payload, listener: EventListener) = registerEvent(50, payload, listener)
 
     /**
      * Registers an event some time in the future.
@@ -67,7 +62,7 @@ object Controller {
     /**
      * Executes the simulation.
      */
-    fun run() {
+    fun run(listener: Listener? = null) {
         if (running) return
 
         running = true
@@ -78,5 +73,20 @@ object Controller {
             event.listener.onEvent(event.payload)
         }
         running = false
+
+        listener?.onSimulationComplete()
+    }
+
+
+    /**
+     * Alerts a listener that the simulation ended.
+     *
+     * @author Ismael Alonso
+     */
+    interface Listener {
+        /**
+         * Called at the end of the simulation
+         */
+        fun onSimulationComplete()
     }
 }
