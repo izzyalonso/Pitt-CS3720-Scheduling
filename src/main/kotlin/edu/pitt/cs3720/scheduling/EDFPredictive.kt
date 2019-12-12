@@ -39,10 +39,6 @@ class EDFPredictiveScheduler: Scheduler() {
     }
 
     override fun scheduleWork() {
-        // Just sanity checks
-        if (jobs.isEmpty()) return
-        if (idleDevices.isEmpty()) return
-
         // We are going to create a rank of suitable available devices for every job given a few metrics:
         //  + Deadline: we want to try to schedule jobs with earlier deadlines first
         //  + Size: we want to get as much work done as we possibly can
@@ -108,14 +104,11 @@ class EDFPredictiveScheduler: Scheduler() {
          * Comes up with a rank for a [device]. The smaller the better.
          */
         private fun rank(device: Device): Int {
-            // The primary metric is how soon (from now) we can get this job done
-            val eta = if (device.isIdle()){
-                job.size / device.capability
-            } else {
-                val completionTime = estimatedCompletionTimes[device] ?: Controller.currentTimeMillis()
-                val timeToCompletion = (completionTime - Controller.currentTimeMillis()).toInt()
-                timeToCompletion + job.size / device.capability
-            }
+            if (!device.isIdle()) return Int.MAX_VALUE
+            if (Controller.currentTimeMillis() + job.size / device.capability > job.deadline) return Int.MAX_VALUE
+
+            // Primary metric is the capability of the device. We want just enough capable devices to schedule first
+            val capability = device.capability
 
             // Secondary to that is the device failure rate devices with higher failure rates will get penalized
             // We don't want to take this number very seriously until we have gathered enough data though
@@ -138,11 +131,11 @@ class EDFPredictiveScheduler: Scheduler() {
                     // We get the actual penalty factor by adding the one back to the mitigated value
                     val penaltyFactor = 1 + adjustedInversePenaltyFactor/(10-tracker.totalJobsAssigned)
                     // We mod the ETA accordingly
-                    (eta * penaltyFactor).toInt()
+                    (capability * penaltyFactor).toInt()
                 } else {
-                    (eta * 1/(1-tracker.failureRate())).toInt()
+                    (capability * 1/(1-tracker.failureRate())).toInt()
                 }
-            } ?: eta
+            } ?: capability
         }
     }
 
@@ -171,16 +164,21 @@ class EDFPredictiveSimulation: Simulation() {
 
     init {
         devices = listOf(
-            Device(scheduler, 1000, 1f, 0f, "Phone 1"),
+            Device(scheduler, 1000, 1.1f, 0f, "Phone 1"),
             Device(scheduler, 500, 1f, 0f, "Phone 2"),
-            Device(scheduler, 2000, 1f, 0f, "Phone 3")
+            Device(scheduler, 2000, 1.05f, 0.05f, "Phone 3"),
+            Device(scheduler, 4000, 1.3f, 0f, "Phone 4"),
+            Device(scheduler, 2000, 1.15f, 0.15f, "Phone 5")
         )
 
         events = listOf(
             awakeEvent(50, devices[0]),
             sleepEvent(TimeUnit.SECONDS.toMillis(10), devices[0]),
+            awakeEvent(TimeUnit.SECONDS.toMillis(15), devices[0]),
             awakeEvent(100, devices[1]),
-            awakeEvent(150, devices[2])
+            awakeEvent(150, devices[2]),
+            awakeEvent(200, devices[3]),
+            awakeEvent(250, devices[4])
         )
     }
 

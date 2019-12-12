@@ -29,8 +29,9 @@ abstract class Simulation {
     fun jobGenerator() = JobGenerator.Random(
         scheduler = scheduler(),
         sizes = Range(500, 8000),
-        deadlines = Range(6000, 9000),
-        frequencies = Range(1500, 3000)
+        deadlines = Range(2000, 4000),
+        frequencies = Range(500, 1000),
+        jobCap = 1000
     )
 
     /**

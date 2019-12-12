@@ -28,16 +28,21 @@ class SimpleSimulation: Simulation() {
 
     init {
         devices = listOf(
-            Device(scheduler, 1000, 1f, 0f, "Phone 1"),
+            Device(scheduler, 1000, 1.1f, 0f, "Phone 1"),
             Device(scheduler, 500, 1f, 0f, "Phone 2"),
-            Device(scheduler, 2000, 1f, 0f, "Phone 3")
+            Device(scheduler, 2000, 1.05f, 0.05f, "Phone 3"),
+            Device(scheduler, 4000, 1.3f, 0f, "Phone 4"),
+            Device(scheduler, 2000, 1.15f, 0.15f, "Phone 5")
         )
 
         events = listOf(
             awakeEvent(50, devices[0]),
             sleepEvent(TimeUnit.SECONDS.toMillis(10), devices[0]),
+            awakeEvent(TimeUnit.SECONDS.toMillis(15), devices[0]),
             awakeEvent(100, devices[1]),
-            awakeEvent(150, devices[2])
+            awakeEvent(150, devices[2]),
+            awakeEvent(200, devices[3]),
+            awakeEvent(250, devices[4])
         )
     }
 

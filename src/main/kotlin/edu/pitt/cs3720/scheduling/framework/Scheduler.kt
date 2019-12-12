@@ -72,6 +72,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             Controller.removeEvent(timeouts[workCompleted.device] ?: -1)
             Analytics.jobCompleted(workCompleted.job, workCompleted.device)
             idleDevices.add(workCompleted.device)
+            schedule.remove(workCompleted.device)
+            // schedule.remove(workCompleted.device)
             if (jobs.isNotEmpty()) {
                 internalScheduleWork()
             }
@@ -134,6 +136,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
             }
         }
 
+        if (jobs.isEmpty() or idleDevices.isEmpty()) return
+
         scheduleWork()
     }
 
@@ -143,8 +147,8 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
     protected fun schedule(job: Job, device: Device) {
         // println("Trying to schedule Job$job on $device")
 
-        if (!jobs.contains(job)) throw IllegalStateException("Job not found in job pool")
-        if (!idleDevices.contains(device)) throw IllegalStateException("Device not found in idle pool")
+        if (!jobs.contains(job)) throw IllegalStateException("Job$job not found in job pool")
+        if (!idleDevices.contains(device)) throw IllegalStateException("Device$device not found in idle pool")
 
         // println("Scheduling Job$job on $device")
 
