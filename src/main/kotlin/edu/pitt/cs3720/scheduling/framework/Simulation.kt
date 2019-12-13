@@ -51,6 +51,7 @@ abstract class Simulation {
                 println("Jobs submitted: ${Analytics.totalJobs}" )
                 println("Jobs completed: ${Analytics.jobsCompleted}")
                 println("Job size completed: ${Analytics.jobSizeCompleted}")
+                println("Energy adjusted job size completed: ${Analytics.energyAdjustedJobSizeCompleted}")
                 println("Deadlines missed: ${Analytics.missedDeadlines}")
                 println("Size lost due to deadline misses: ${Analytics.missedSize}")
                 println("Jobs per device:")

@@ -11,6 +11,9 @@ object Analytics {
     var jobSizeCompleted = 0
         private set
 
+    var energyAdjustedJobSizeCompleted = 0
+        private set
+
     var missedDeadlines = 0
         private set
 
@@ -32,6 +35,7 @@ object Analytics {
         totalJobs++
         jobsCompleted++
         jobSizeCompleted += job.size
+        energyAdjustedJobSizeCompleted += (job.size*device.efficiency).toInt()
 
         if (!jobsPerDevice.containsKey(device)) {
             jobsPerDevice[device] = 1
