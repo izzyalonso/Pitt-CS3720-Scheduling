@@ -44,6 +44,17 @@ abstract class Scheduler(private val timeoutMillis: Long): EventListener {
         }
     }
 
+    fun addJobs(newJobs: List<Job>) {
+        println("Adding Jobs$newJobs to pool")
+        jobs.addAll(newJobs)
+        for (job in newJobs) {
+            jobAdded(job)
+        }
+        if (idleDevices.isNotEmpty()) {
+            internalScheduleWork()
+        }
+    }
+
     final override fun onEvent(payload: Payload) {
         payload.deviceOnline()?.let { deviceOnline ->
             if (schedule.containsKey(deviceOnline.device)) {

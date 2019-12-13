@@ -130,7 +130,7 @@ class EDFPredictiveScheduler: Scheduler() {
                     // The bigger the history the less we care about mitigating the adjusted value
                     // We get the actual penalty factor by adding the one back to the mitigated value
                     val penaltyFactor = 1 + adjustedInversePenaltyFactor/(10-tracker.totalJobsAssigned)
-                    // We mod the ETA accordingly
+                    // We mod the capability accordingly
                     (capability * penaltyFactor).toInt()
                 } else {
                     (capability * 1/(1-tracker.failureRate())).toInt()
@@ -185,4 +185,9 @@ class EDFPredictiveSimulation: Simulation() {
     override fun scheduler() = scheduler
     override fun devices() = devices
     override fun setupEvents() = events
+
+    /*
+     * For the online-offline experiment.
+     */
+    // override fun jobGenerator() = JobGenerator.Fixed(scheduler, JobRuns.offlineSetupRun())
 }

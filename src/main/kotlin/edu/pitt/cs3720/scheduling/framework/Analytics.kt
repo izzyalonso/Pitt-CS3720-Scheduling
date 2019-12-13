@@ -17,6 +17,8 @@ object Analytics {
     var missedSize = 0
         private set
 
+    val jobsPerDevice = mutableMapOf<Device, Int>()
+
 
     fun reset() {
         totalJobs = 0
@@ -30,6 +32,12 @@ object Analytics {
         totalJobs++
         jobsCompleted++
         jobSizeCompleted += job.size
+
+        if (!jobsPerDevice.containsKey(device)) {
+            jobsPerDevice[device] = 1
+        } else {
+            jobsPerDevice[device] = jobsPerDevice[device]!! + 1
+        }
     }
 
     fun jobMissedDeadline(job: Job) {

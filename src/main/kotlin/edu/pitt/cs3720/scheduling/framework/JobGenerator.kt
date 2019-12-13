@@ -27,8 +27,10 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
         if (started) return
         started = true
         // Let the job generation be the first thing to execute
-        Controller.registerEvent(0, GenerateJob(), this)
+        Controller.registerEvent(getNextEventTime(), GenerateJob(), this)
     }
+
+    internal abstract fun getNextEventTime(): Long
 
     /**
      * Adds a number of jobs with random sizes and frequencies in pre-established ranges.
@@ -56,6 +58,8 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
 
         private var generatedJobs = 0
 
+        override fun getNextEventTime() = frequencies.random().toLong()
+
         override fun onEvent(payload: Payload) {
             payload.generateJob()?.let { _ ->
                 scheduler.addJob(Job(sizes.random(), Controller.currentTimeMillis()+deadlines.random()))
@@ -80,21 +84,25 @@ abstract class JobGenerator(protected val scheduler: Scheduler): EventListener {
         init {
             // Sort the jobs by release time
             // Just a precaution
-            this.jobs = jobs.toMutableList().sortedBy { job -> job.second } as MutableList<Pair<Job, Long>>
+            this.jobs = jobs.sortedBy { job -> job.second }.toMutableList()
         }
+
+        override fun getNextEventTime() = jobs.first().second
 
         override fun onEvent(payload: Payload) {
             payload.generateJob()?.let { _ ->
                 val nextTime = jobs.first().second
                 // Release all the jobs with the same next time
+                val toRelease = mutableListOf<Job>()
                 while (jobs.isNotEmpty() && jobs.first().second == nextTime) {
-                    scheduler.addJob(jobs.removeAt(0).first)
+                    toRelease.add(jobs.removeAt(0).first)
                 }
+                scheduler.addJobs(toRelease)
 
                 // If there are still jobs to release, schedule te next release
                 if (jobs.isNotEmpty()) {
                     Controller.registerEvent(
-                        Controller.currentTimeMillis() - jobs.first().second,
+                        jobs.first().second - Controller.currentTimeMillis(),
                         GenerateJob(),
                         this
                     )

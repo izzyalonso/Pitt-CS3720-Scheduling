@@ -26,7 +26,7 @@ abstract class Simulation {
     /**
      * @return the default job generator, parameters may change in the future.
      */
-    fun jobGenerator() = JobGenerator.Random(
+    open fun jobGenerator(): JobGenerator = JobGenerator.Random(
         scheduler = scheduler(),
         sizes = Range(500, 8000),
         deadlines = Range(2000, 4000),
@@ -53,6 +53,10 @@ abstract class Simulation {
                 println("Job size completed: ${Analytics.jobSizeCompleted}")
                 println("Deadlines missed: ${Analytics.missedDeadlines}")
                 println("Size lost due to deadline misses: ${Analytics.missedSize}")
+                println("Jobs per device:")
+                for (device in devices()) {
+                    println("\t$device completed ${Analytics.jobsPerDevice[device]} jobs")
+                }
             }
         })
     }
